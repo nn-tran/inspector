@@ -117,30 +117,8 @@ public class Inspector {
 			System.out.println(" None");
 		} else {
 			System.out.println();
-			for (Constructor i : constructors) {
-				Class[] cExceptions = i.getExceptionTypes();
-				Class[] cParams = i.getParameterTypes();
-				int cMod = i.getModifiers();
-				System.out.println(tab + "  Name: " + i.getName());
-				System.out.print(tab + "   Exception(s):");
-				if (cExceptions.length == 0) {
-					System.out.println(" None");
-				} else {
-					System.out.println();
-					for (Class j : cExceptions) {
-						System.out.println(tab + "   " + j.getName());
-					}
-				}
-				System.out.print(tab + "   Parameter(s):");
-				if (cParams.length == 0) {
-					System.out.println(" None");
-				} else {
-					System.out.println();
-					for (Class j : cParams) {
-						System.out.println(tab + "   " + j.getName());
-					}
-				}
-				System.out.println(tab + "   Modifier(s): "+ Modifier.toString(cMod));
+			for (Constructor co : constructors) {
+				System.out.print(printConstructor(co, tab));
 
 			}
 		}
@@ -160,33 +138,8 @@ public class Inspector {
 			System.out.println(" None");
 		} else {
 			System.out.println();
-			for (Method i : methods) {
-				Class[] mExceptions = i.getExceptionTypes();
-				Class[] mParams = i.getParameterTypes();
-				Class mRet = i.getReturnType();
-				int mMod = i.getModifiers();
-				System.out.println(tab + "  Name: " + i.getName());
-				System.out.print(tab + "   Exception(s):");
-				if (mExceptions.length == 0) {
-					System.out.println(" None");
-				} else {
-					System.out.println();
-					for (Class j : mExceptions) {
-						System.out.println(tab + "    " + j.getName());
-					}
-				}
-				System.out.print(tab + "   Parameter(s):");
-				if (mParams.length == 0) {
-					System.out.println(" None");
-				} else {
-					System.out.println();
-					for (Class j : mParams) {
-						System.out.println(tab + "    " + j.getName());
-					}
-				}
-				System.out.println(tab + "   Return type: " + mRet.getName());
-				System.out.println(tab + "   Modifier(s): "+ Modifier.toString(mMod));
-
+			for (Method m : methods) {
+				System.out.print(printMethod(m, tab));
 			}
 		}
 	}
@@ -208,26 +161,23 @@ public class Inspector {
 			System.out.println(" None");
 		} else {
 			System.out.println();
-			for (Field k : fields) {
-				System.out.println(tab + "  Name: "+ k.getName());
-				System.out.println(tab + "   Type: "+ k.getType());
-				System.out.println(tab + "   Modifier(s): "+ Modifier.toString(k.getModifiers()));
+			for (Field f : fields) {
+				System.out.print(printField(f, tab));
 				try {
-					Object value = k.get(obj);
-					if (recursive && value != null && !k.getType().isPrimitive()) {
-						System.out.println(tab + "   Value: Field is class");
-						System.out.println(tab + "   Inspecting field");
+					Object value = f.get(obj);
+					if (recursive && value != null && !f.getType().isPrimitive()) {
+						System.out.println(tab + "  Value: Field is class");
+						System.out.println(tab + "  Inspecting field");
 						inspectClass(value.getClass(), value, recursive, depth+1);
 					} else {
-						System.out.println(tab + "   Value:" + value);
+						System.out.println(tab + "  Value: " + value);
 					}
 				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
 					// TODO Auto-generated catch block
-					System.out.println(tab + "   Value: not visible (private field)");
-					//e.printStackTrace();
+					e.printStackTrace();
 				}
 			}
 		}
@@ -235,8 +185,8 @@ public class Inspector {
 
 	/**
 	 * make indentation based on depth
-	 * @param depth current recursion depth
-	 * @return the indent string
+	 * @param depth	current recursion depth
+	 * @return		the indent string
 	 */
 	String indent(int depth) {
 		String res = "";
@@ -244,6 +194,62 @@ public class Inspector {
 			res += "\t";
 		}
 		return res;
+	}
+	
+
+	String printField(Field f, String tab) {
+		String output = "";
+		output += tab + "  Name: "+ f.getName() + "\n";
+		output += tab + "  Type: "+ f.getType() + "\n";
+		output += tab + "  Modifier(s): "+ Modifier.toString(f.getModifiers()) + "\n";
+		return output;
+	}
+	
+	String printMethod(Method m, String tab) {
+		String output = "";
+		output += tab + "  Name: " + m.getName() + "\n";
+		
+		output += tab + "  Exception(s):";
+		output += printArray(m.getExceptionTypes(), tab, 3);
+
+		output += tab + "  Parameter(s):";
+		output += printArray(m.getParameterTypes(), tab, 3);
+
+		output += tab + "  Return type: " + m.getReturnType().getName() + "\n";
+		
+		output += tab + "  Modifier(s): "+ Modifier.toString(m.getModifiers()) + "\n";
+		return output;
+	}
+	
+	String printConstructor(Constructor co, String tab) {
+		String output = "";
+		output += tab + "  Name: " + co.getName() + "\n";
+		
+		output += tab + "  Exception(s):";
+		output += printArray(co.getExceptionTypes(), tab, 3);
+
+		output += tab + "  Parameter(s):";
+		output += printArray(co.getParameterTypes(), tab, 3);
+
+		output += tab + "  Modifier(s): "+ Modifier.toString(co.getModifiers()) + "\n";
+		return output;
+	}
+	
+	String printArray(Class[] array, String tab, int space) {
+		String output = "";
+		if (array.length == 0) {
+			output+= " None\n";
+		} else {
+			output+= "\n";
+			for (Class c : array) {
+				output+= tab;
+				for (int i = 0; i < space; ++i) {
+					output += " ";
+				}
+				output+= c.getName() + "\n";
+			}
+		}
+		return output;
 	}
 	
 }
