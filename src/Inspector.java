@@ -6,9 +6,9 @@ import java.lang.reflect.Modifier;
 
 /**
  * CPSC 501
- * Inspector starter class
+ * Inspector class
  *
- * @author Jonathan Hudson
+ * @author Nguyen Tran
  */
 public class Inspector {
 
@@ -19,13 +19,13 @@ public class Inspector {
 
 	private void inspectClass(Class c, Object obj, boolean recursive, int depth) {
 		String tab = indent(depth);
-		String cName = c.getName();
-		System.out.println(tab + "<Inspecting " + cName + ">");
+		System.out.println(tab + "<Inspecting " + c.getName() + ">");
 				
 		Class cSuper = c.getSuperclass();
 		if (cSuper!=null) {
-			String superName = cSuper.getName();
-			System.out.println(tab + " Superclass: " + superName);
+			System.out.println(tab + " Superclass: " + cSuper.getName());
+			//System.out.println(tab + " Inspecting superclass");
+			inspectClass(cSuper, obj, recursive, depth+1);
 		}
 		Class[] interfaces = c.getInterfaces();
 		System.out.print(tab + " Interface(s):");
@@ -35,29 +35,34 @@ public class Inspector {
 			System.out.println();
 			for (Class i : interfaces) {
 				System.out.println(tab + "  " + i.getName());
+				//System.out.println(tab + "  Inspecting interface");
+				inspectClass(i, obj, recursive, depth+1);
 			}
 		}
-		constructorHandler(c, obj);
-		methodHandler(c, obj);
+		constructorHandler(c, obj, tab);
+		methodHandler(c, obj, tab);
 		fieldHandler(c, obj, recursive, depth);
+		arrayHandler(c, obj, tab);
 		
-		if (c.isArray()) {
-			Class cComp = c.getComponentType();
-			int len = Array.getLength(obj);
-			for (int i = 0; i < len; ++i) {
-				Object value = Array.get(obj, i);
-			System.out.print("");
-			}
-		}
 		
-		if (cSuper!=null) {
-			System.out.println(tab + " Inspecting superclass");
-			inspectClass(cSuper, obj, recursive, depth+1);
-		}
 		
 	}
 
-	private void constructorHandler(Class c, Object obj) {
+	private void arrayHandler(Class c, Object obj, String tab) {
+		if (c.isArray()) {
+			int len = Array.getLength(obj);
+			System.out.println(tab + " Object is array");
+			System.out.println(tab + "  Type: " + c.getComponentType());
+			System.out.println(tab + "  Length: " + len);
+			System.out.println(tab + "  Values:");
+			for (int i = 0; i < len; ++i) {
+				Object value = Array.get(obj, i);
+				System.out.println(tab + "   " + value);
+			}
+		}
+	}
+	
+	private void constructorHandler(Class c, Object obj, String tab) {
 		Constructor[] constructors = c.getDeclaredConstructors();
 		for (Constructor i : constructors) {
 			String cName = i.getName();
@@ -67,7 +72,7 @@ public class Inspector {
 		}
 	}
 	
-	private void methodHandler(Class c, Object obj) {
+	private void methodHandler(Class c, Object obj, String tab) {
 		Method[] methods = c.getDeclaredMethods();
 		for (Method j : methods) {
 			String mName = j.getName();
@@ -101,7 +106,7 @@ public class Inspector {
 						System.out.println(tab + "   Inspecting field");
 						inspectClass(cField, value, recursive, depth+1);
 					} else {
-						System.out.println(value);
+						System.out.println(tab + "   Value:" + value);
 					}
 				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
