@@ -64,12 +64,37 @@ public class Inspector {
 	
 	private void constructorHandler(Class c, Object obj, String tab) {
 		Constructor[] constructors = c.getDeclaredConstructors();
-		for (Constructor i : constructors) {
-			String cName = i.getName();
-			Class[] cExceptions = i.getExceptionTypes();
-			Class[] cParams = i.getParameterTypes();
-			int cMod = i.getModifiers();
+		System.out.print(tab + " Constructor(s):");
+		if (constructors.length == 0) {
+			System.out.println(" None");
+		} else {
+			System.out.println();
+			for (Constructor i : constructors) {
+				Class[] cExceptions = i.getExceptionTypes();
+				Class[] cParams = i.getParameterTypes();
+				int cMod = i.getModifiers();
+				System.out.println(tab + "  Name: " + i.getName());
+				System.out.print(tab + "  Exception(s):");
+				if (cExceptions.length == 0) {
+					System.out.println(" None");
+				} else {
+					System.out.println();
+					for (Class j : cExceptions) {
+						System.out.println(tab + "   " + j.getName());
+					}
+				}
+				System.out.print(tab + "  Parameter(s):");
+				if (cParams.length == 0) {
+					System.out.println(" None");
+				} else {
+					System.out.println();
+					for (Class j : cParams) {
+						System.out.println(tab + "   " + j.getName());
+					}
+				}
+			}
 		}
+		
 	}
 	
 	private void methodHandler(Class c, Object obj, String tab) {
@@ -127,4 +152,5 @@ public class Inspector {
 		}
 		return res;
 	}
+	
 }
