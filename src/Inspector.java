@@ -41,14 +41,14 @@ public class Inspector {
 		}
 		constructorHandler(c, obj, tab);
 		methodHandler(c, obj, tab);
-		fieldHandler(c, obj, recursive, depth);
-		arrayHandler(c, obj, tab);
+		fieldHandler(c, obj, recursive, depth, tab);
+		arrayHandler(c, obj, recursive, depth, tab);
 		
 		
 		
 	}
 
-	private void arrayHandler(Class c, Object obj, String tab) {
+	private void arrayHandler(Class c, Object obj, boolean recursive, int depth, String tab) {
 		if (c.isArray()) {
 			int len = Array.getLength(obj);
 			System.out.println(tab + " Object is array");
@@ -57,7 +57,12 @@ public class Inspector {
 			System.out.println(tab + "  Values:");
 			for (int i = 0; i < len; ++i) {
 				Object value = Array.get(obj, i);
-				System.out.println(tab + "   " + value);
+				if (!recursive || value == null) {
+					System.out.println(tab + "   " + value);
+				} else {
+					System.out.println(tab + "   Inspecting array element");
+					inspectClass(value.getClass(), value, recursive, depth+1);
+				}
 			}
 		}
 	}
@@ -108,8 +113,7 @@ public class Inspector {
 		}
 	}
 
-	private void fieldHandler(Class c, Object obj, boolean recursive, int depth) {
-		String tab = indent(depth);
+	private void fieldHandler(Class c, Object obj, boolean recursive, int depth, String tab) {
 		Field[] fields = c.getDeclaredFields();
 		System.out.print(tab + " Field(s):");
 		if (fields.length == 0) {
@@ -138,7 +142,7 @@ public class Inspector {
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
 					// TODO Auto-generated catch block
-					System.out.println(tab + "   Value: not visible");
+					System.out.println(tab + "   Value: not visible (private field)");
 					//e.printStackTrace();
 				}
 			}
