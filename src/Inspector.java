@@ -32,7 +32,8 @@ public class Inspector {
 	 */
 	private void inspectClass(Class c, Object obj, boolean recursive, int depth) {
 		String tab = indent(depth);
-		System.out.println(tab + "<Inspecting " + c.getName() + ">");
+		System.out.println(tab + "CLASS");
+		System.out.println(tab + "class: " + c.getName());
 		arrayHandler(c, obj, tab);
 		superClassHandler(c, obj, recursive, depth, tab);
 		interfaceHandler(c, obj, recursive, depth, tab);
@@ -54,8 +55,8 @@ public class Inspector {
 	private void superClassHandler(Class c, Object obj, boolean recursive, int depth, String tab) {
 		Class cSuper = c.getSuperclass();
 		if (cSuper!=null) {
-			System.out.println(tab + " Superclass: " + cSuper.getName());
-			//System.out.println(tab + " Inspecting superclass");
+			System.out.println(tab + "SUPERCLASS -> Recursively Inspect");
+			System.out.println(tab + "Superclass: " + cSuper.getName());
 			inspectClass(cSuper, obj, recursive, depth+1);
 		}
 	}
@@ -71,9 +72,10 @@ public class Inspector {
 	 */
 	private void interfaceHandler(Class c, Object obj, boolean recursive, int depth, String tab) {
 		Class[] interfaces = c.getInterfaces();
-		System.out.print(tab + " Interface(s):");
+		System.out.println(tab + " INTERFACES<" + c.getName() + ">");
+		System.out.print(tab + " Interfaces->");
 		if (interfaces.length == 0) {
-			System.out.println(" None");
+			System.out.println(" NONE");
 		} else {
 			System.out.println();
 			for (Class i : interfaces) {
@@ -92,13 +94,12 @@ public class Inspector {
 	private void arrayHandler(Class c, Object obj, String tab) {
 		if (c.isArray()) {
 			int len = Array.getLength(obj);
-			System.out.println(tab + " Object is array");
-			System.out.println(tab + " Type: " + c.getComponentType());
-			System.out.println(tab + " Length: " + len);
-			System.out.println(tab + " Values:");
+			System.out.println(tab + "Component type: " + c.getComponentType());
+			System.out.println(tab + "Length: " + len);
+			System.out.println(tab + "Values->");
 			for (int i = 0; i < len; ++i) {
 				Object value = Array.get(obj, i);
-				System.out.println(tab + "  " + value);
+				System.out.println(tab + " " + value);
 				
 			}
 		}
@@ -111,8 +112,9 @@ public class Inspector {
 	 * @param tab	the indentation for printing
 	 */
 	private void constructorHandler(Class c, Object obj, String tab) {
+		System.out.println(tab + " CONSTRUCTORS<" + c.getName() + ">");
 		Constructor[] constructors = c.getDeclaredConstructors();
-		System.out.print(tab + " Constructor(s):");
+		System.out.print(tab + " Constructors->");
 		printArrayWithData(constructors, tab);
 	}
 	
@@ -123,8 +125,9 @@ public class Inspector {
 	 * @param tab	the indentation for printing
 	 */
 	private void methodHandler(Class c, Object obj, String tab) {
+		System.out.println(tab + " METHODS<" + c.getName() + ">");
 		Method[] methods = c.getDeclaredMethods();
-		System.out.print(tab + " Method(s):");
+		System.out.print(tab + " Methods->");
 		printArrayWithData(methods, tab);
 	}
 	
@@ -140,21 +143,19 @@ public class Inspector {
 	private void fieldHandler(Class c, Object obj, boolean recursive, int depth, String tab) {
 		Field[] fields = c.getDeclaredFields();
 		Field.setAccessible(fields, true);
-		System.out.print(tab + " Field(s):");
+		System.out.print(tab + " Fields->");
 		if (fields.length == 0) {
-			System.out.println(" None");
+			System.out.println(" NONE");
 		} else {
 			System.out.println();
 			for (Field f : fields) {
 				System.out.print(printField(f, tab));
 				try {
 					Object value = f.get(obj);
+					System.out.println(tab + "   Value: " + value);
 					if (recursive && value != null && !f.getType().isPrimitive()) {
-						System.out.println(tab + "  Value: Field is class");
-						System.out.println(tab + "  Inspecting field");
+						System.out.println(tab + "    -> Recursively Inspect");
 						inspectClass(value.getClass(), value, recursive, depth+1);
-					} else {
-						System.out.println(tab + "  Value: " + value);
 					}
 				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
@@ -180,49 +181,77 @@ public class Inspector {
 		return res;
 	}
 	
-
+	/**
+	 * make a printable string for a field
+	 * does not handle recursion
+	 * @param f		field to print
+	 * @param tab	indentation
+	 * @return		the printable string
+	 */
 	String printField(Field f, String tab) {
 		String output = "";
-		output += tab + "  Name: "+ f.getName() + "\n";
-		output += tab + "  Type: "+ f.getType() + "\n";
-		output += tab + "  Modifier(s): "+ Modifier.toString(f.getModifiers()) + "\n";
+		output += tab + "  FIELD\n";
+		output += tab + "   Name: "+ f.getName() + "\n";
+		output += tab + "   Type: "+ f.getType() + "\n";
+		output += tab + "   Modifiers-> "+ Modifier.toString(f.getModifiers()) + "\n";
 		return output;
 	}
 	
+	/**
+	 * make a printable string for a method
+	 * @param m		method to print
+	 * @param tab	indentation
+	 * @return		the printable string
+	 */
 	String printMethod(Method m, String tab) {
 		String output = "";
-		output += tab + "  Name: " + m.getName() + "\n";
+		output += tab + "  METHOD\n";
+		output += tab + "   Name: " + m.getName() + "\n";
 		
-		output += tab + "  Exception(s):";
+		output += tab + "   Exceptions->";
 		output += printClassArray(m.getExceptionTypes(), tab, 3);
 
-		output += tab + "  Parameter(s):";
+		output += tab + "   Parameters->";
 		output += printClassArray(m.getParameterTypes(), tab, 3);
 
-		output += tab + "  Return type: " + m.getReturnType().getName() + "\n";
+		output += tab + "   Return type: " + m.getReturnType().getName() + "\n";
 		
-		output += tab + "  Modifier(s): "+ Modifier.toString(m.getModifiers()) + "\n";
+		output += tab + "   Modifiers-> "+ Modifier.toString(m.getModifiers()) + "\n";
 		return output;
 	}
-	
+
+	/**
+	 * make a printable string for a constructor
+	 * @param co	constructor to print
+	 * @param tab	indentation
+	 * @return		the printable string
+	 */
 	String printConstructor(Constructor co, String tab) {
 		String output = "";
-		output += tab + "  Name: " + co.getName() + "\n";
+		output += tab + "  CONSTRUCTOR\n";
+		output += tab + "   Name: " + co.getName() + "\n";
 		
-		output += tab + "  Exception(s):";
+		output += tab + "   Exceptions->";
 		output += printClassArray(co.getExceptionTypes(), tab, 3);
 
-		output += tab + "  Parameter(s):";
+		output += tab + "   Parameters->";
 		output += printClassArray(co.getParameterTypes(), tab, 3);
 
-		output += tab + "  Modifier(s): "+ Modifier.toString(co.getModifiers()) + "\n";
+		output += tab + "   Modifiers-> "+ Modifier.toString(co.getModifiers()) + "\n";
 		return output;
 	}
 	
+	/**
+	 * make a printable string of an array of an attribute
+	 * @param array		attribute array to print
+	 * @param tab		indentation
+	 * @param space		extra spacing for formatting
+	 * @return			the printable string
+	 */
 	String printClassArray(Class[] array, String tab, int space) {
 		String output = "";
 		if (array.length == 0) {
-			output+= " None\n";
+			output+= " NONE\n";
 		} else {
 			output+= "\n";
 			for (Class c : array) {
@@ -236,9 +265,14 @@ public class Inspector {
 		return output;
 	}
 	
+	/**
+	 * print a complete string for methods and constructors
+	 * @param array		array to print
+	 * @param tab		indentation
+	 */
 	void printArrayWithData(Object[] array, String tab) {
 		if (array.length == 0) {
-			System.out.println(" None");
+			System.out.println(" NONE");
 		} else {
 			System.out.println();
 			for (Object o : array) {

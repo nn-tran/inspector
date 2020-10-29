@@ -11,7 +11,6 @@ import com.sun.org.apache.xalan.internal.xsltc.util.IntegerArray;
 class InspectorTest {
 
 	public class TestClass {
-		public boolean a,b;
 		public int[] c = {1,2,3};
 		public TestClass(){
 			
@@ -28,7 +27,7 @@ class InspectorTest {
 	}
 	
 	public class TestClass2 {
-		public boolean a,b;
+		public boolean a;
 		
 		public TestClass2(int[] intArray, String s){
 			
@@ -58,38 +57,51 @@ class InspectorTest {
 		assertEquals("\t\t\t", ins.indent(3));
 		
 		assertEquals(
-				  "\t  Name: InspectorTest$TestClass\n"
-				+ "\t  Exception(s): None\n"
-				+ "\t  Parameter(s):\n"
+				  "\t  CONSTRUCTOR\n"
+				+ "\t   Name: InspectorTest$TestClass\n"
+				+ "\t   Exceptions-> NONE\n"
+				+ "\t   Parameters->\n"
 				+ "\t   InspectorTest\n"
-				+ "\t  Modifier(s): public\n", ins.printConstructor(ct1, "\t"));
+				+ "\t   Modifiers-> public\n", ins.printConstructor(ct1, "\t"));
 		
 		assertEquals(
-				  "\t  Name: InspectorTest$TestClass2\n"
-				+ "\t  Exception(s): None\n"
-				+ "\t  Parameter(s):\n"
+				  "\t  CONSTRUCTOR\n"
+				+ "\t   Name: InspectorTest$TestClass2\n"
+				+ "\t   Exceptions-> NONE\n"
+				+ "\t   Parameters->\n"
 				+ "\t   InspectorTest\n"
 				+ "\t   [I\n"
 				+ "\t   java.lang.String\n"
-				+ "\t  Modifier(s): public\n", ins.printConstructor(ct2, "\t"));
+				+ "\t   Modifiers-> public\n", ins.printConstructor(ct2, "\t"));
 		
 		assertEquals(
-				  "\t  Name: bar\n"
-				+ "\t  Exception(s): None\n"
-				+ "\t  Parameter(s):\n"
+				  "\t  METHOD\n"
+				+ "\t   Name: bar\n"
+				+ "\t   Exceptions-> NONE\n"
+				+ "\t   Parameters->\n"
 				+ "\t   [I\n"
-				+ "\t  Return type: void\n"
-				+ "\t  Modifier(s): \n", ins.printMethod(m1, "\t"));
+				+ "\t   Return type: void\n"
+				+ "\t   Modifiers-> \n", ins.printMethod(m1, "\t"));
 		
 		assertEquals(
-				  "\t  Name: foo\n"
-				+ "\t  Exception(s): None\n"
-				+ "\t  Parameter(s): None\n"
-				+ "\t  Return type: [I\n"
-				+ "\t  Modifier(s): \n", ins.printMethod(m2, "\t"));
+				  "\t  METHOD\n"
+				+ "\t   Name: foo\n"
+				+ "\t   Exceptions-> NONE\n"
+				+ "\t   Parameters-> NONE\n"
+				+ "\t   Return type: [I\n"
+				+ "\t   Modifiers-> \n", ins.printMethod(m2, "\t"));
 		
+		assertEquals(
+				  "\t  FIELD\n"
+				+ "\t   Name: c\n"
+				+ "\t   Type: class [I\n"
+				+ "\t   Modifiers-> public\n", ins.printField(f1, "\t"));
 		
-		
+		assertEquals(
+				  "\t  FIELD\n"
+				+ "\t   Name: a\n"
+				+ "\t   Type: boolean\n"
+				+ "\t   Modifiers-> public\n", ins.printField(f2, "\t"));
 	}
 
 }
