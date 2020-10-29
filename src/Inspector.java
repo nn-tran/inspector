@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Nguyen Tran
  */
+
 public class Inspector {
 
 	/**
@@ -77,7 +78,6 @@ public class Inspector {
 			System.out.println();
 			for (Class i : interfaces) {
 				System.out.println(tab + "  " + i.getName());
-				//System.out.println(tab + "  Inspecting interface");
 				inspectClass(i, obj, recursive, depth+1);
 			}
 		}
@@ -113,16 +113,7 @@ public class Inspector {
 	private void constructorHandler(Class c, Object obj, String tab) {
 		Constructor[] constructors = c.getDeclaredConstructors();
 		System.out.print(tab + " Constructor(s):");
-		if (constructors.length == 0) {
-			System.out.println(" None");
-		} else {
-			System.out.println();
-			for (Constructor co : constructors) {
-				System.out.print(printConstructor(co, tab));
-
-			}
-		}
-		
+		printArrayWithData(constructors, tab);
 	}
 	
 	/**
@@ -134,14 +125,7 @@ public class Inspector {
 	private void methodHandler(Class c, Object obj, String tab) {
 		Method[] methods = c.getDeclaredMethods();
 		System.out.print(tab + " Method(s):");
-		if (methods.length == 0) {
-			System.out.println(" None");
-		} else {
-			System.out.println();
-			for (Method m : methods) {
-				System.out.print(printMethod(m, tab));
-			}
-		}
+		printArrayWithData(methods, tab);
 	}
 	
 	/**
@@ -210,10 +194,10 @@ public class Inspector {
 		output += tab + "  Name: " + m.getName() + "\n";
 		
 		output += tab + "  Exception(s):";
-		output += printArray(m.getExceptionTypes(), tab, 3);
+		output += printClassArray(m.getExceptionTypes(), tab, 3);
 
 		output += tab + "  Parameter(s):";
-		output += printArray(m.getParameterTypes(), tab, 3);
+		output += printClassArray(m.getParameterTypes(), tab, 3);
 
 		output += tab + "  Return type: " + m.getReturnType().getName() + "\n";
 		
@@ -226,16 +210,16 @@ public class Inspector {
 		output += tab + "  Name: " + co.getName() + "\n";
 		
 		output += tab + "  Exception(s):";
-		output += printArray(co.getExceptionTypes(), tab, 3);
+		output += printClassArray(co.getExceptionTypes(), tab, 3);
 
 		output += tab + "  Parameter(s):";
-		output += printArray(co.getParameterTypes(), tab, 3);
+		output += printClassArray(co.getParameterTypes(), tab, 3);
 
 		output += tab + "  Modifier(s): "+ Modifier.toString(co.getModifiers()) + "\n";
 		return output;
 	}
 	
-	String printArray(Class[] array, String tab, int space) {
+	String printClassArray(Class[] array, String tab, int space) {
 		String output = "";
 		if (array.length == 0) {
 			output+= " None\n";
@@ -252,4 +236,20 @@ public class Inspector {
 		return output;
 	}
 	
+	void printArrayWithData(Object[] array, String tab) {
+		if (array.length == 0) {
+			System.out.println(" None");
+		} else {
+			System.out.println();
+			for (Object o : array) {
+				if (o instanceof Method) {
+					System.out.print(printMethod((Method) o, tab));
+				}
+				if (o instanceof Constructor) {
+					System.out.print(printConstructor((Constructor) o, tab));
+				}
+				
+			}
+		}
+	}
 }
